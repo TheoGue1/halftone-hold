@@ -82,6 +82,8 @@ func _ready() -> void:
 		await get_tree().process_frame
 	if "--ui-check" in OS.get_cmdline_user_args():
 		await _ui_check(main)
+	if "--thumb" in OS.get_cmdline_user_args():
+		await _compose_thumbnail(main)
 	get_viewport().get_texture().get_image().save_png(out)
 	get_tree().quit()
 
@@ -139,4 +141,33 @@ func _click(pos: Vector2, button: MouseButton) -> void:
 		e.button_index = button
 		e.pressed = pressed
 		Input.parse_input_event(e)
+		await get_tree().process_frame
+
+
+## Full-width scene with the title on top, for store/repo thumbnails.
+func _compose_thumbnail(main: Node) -> void:
+	main.set_process(false)
+	main.root.get_child(0).visible = false
+	var size := get_viewport().get_visible_rect().size
+	main.world.area = Rect2(Vector2(0, 60), size - Vector2(0, 60))
+	main.world.spawn_omen("cart")
+	main.world.omens[0].pos = Vector2(size.x * 0.66, size.y * 0.86)
+	main.world.spawn_omen("dragon")
+	main.world.omens[1].pos = Vector2(size.x * 0.42, size.y * 0.36)
+	main.world.omens[1].vel = Vector2.ZERO
+	var title: Label = main._outlined(main._label("HALFTONE HOLD", 120, main.WAX))
+	title.add_theme_font_override("font", main.FONT_CAPS)
+	title.add_theme_constant_override("outline_size", 22)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.size = Vector2(size.x, 140)
+	title.position = Vector2(0, 18)
+	main.root.add_child(title)
+	var sub: Label = main._outlined(main._label("A medieval incremental, printed in ink", 40))
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.size = Vector2(size.x, 50)
+	sub.position = Vector2(0, 150)
+	main.root.add_child(sub)
+	for i in 90:
+		if i % 15 == 0:
+			main.world.stamp(main.world.seal_center() + Vector2(randf_range(-40, 40), -60), i % 30 == 0)
 		await get_tree().process_frame
