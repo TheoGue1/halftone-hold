@@ -17,7 +17,6 @@ const WAX := Color(0.62, 0.08, 0.06)
 const FADED := Color(0.45, 0.4, 0.34)
 const UI_REFRESH := 0.1
 const MAX_FLOATERS := 40
-const DEV_SPEEDS := [1, 10, 25, 100]
 const HALFTONE_CELL := 4.0  # finest screen the shader prints cleanly
 const KIND_NAMES := ["Minor", "Notable", "Keystone", "Origin"]
 
@@ -624,15 +623,6 @@ func _build_settings() -> Control:
 	sci.button_pressed = Game.settings.notation == 1
 	sci.toggled.connect(func(on: bool) -> void: Game.settings.notation = 1 if on else 0)
 	v.add_child(sci)
-	# ponytail: dev-only speed control, not saved; remove (or hide behind a debug build check) before release.
-	var speed_row := HBoxContainer.new()
-	speed_row.add_child(_label("Dev: game speed", 18, WAX))
-	var speed := OptionButton.new()
-	for x in DEV_SPEEDS:
-		speed.add_item("×%d" % x)
-	speed.item_selected.connect(func(i: int) -> void: Engine.time_scale = DEV_SPEEDS[i])
-	speed_row.add_child(speed)
-	v.add_child(speed_row)
 	var save := Button.new()
 	save.text = "Save now"
 	save.pressed.connect(func() -> void:
